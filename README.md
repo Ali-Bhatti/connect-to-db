@@ -1,3 +1,7 @@
+## Purpose
+- to run same querie(s) on mutiple DB instances
+- to get export of data fetched as a result of that query from differnt DBs instances
+
 ## Steps to Run it
 - Install node js from [here](https://nodejs.org/en/download), if not installed
 - Clone or download the repo
