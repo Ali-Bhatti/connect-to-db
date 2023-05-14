@@ -6,11 +6,12 @@ async function main() {
 
     // write queries in the order you want to run
     let queries = [
-        `select * from users`
+        `select * from table_name_1`,
+        `select * from table_name_2`
     ];
 
 
-    await runAllQueries(queries, { folder_name});
+    await runAllQueries(queries, { folder_name, should_export: true });
 }
 
 main();

@@ -58,7 +58,7 @@ async function runAllQueries(queries = [], params = {}) {
 
                     // if query is "SELECT" then export that data, otherwise just print the data
                     if (should_export && query.split(' ')[0].toLowerCase() === 'select') {
-                        convertJsonToExcel(data, { rds_instance: db_configs[i].name.split('_')[1] || db_configs[i].name || 'localhost', folder_name });
+                        convertJsonToExcel(data, { rds_instance: db_configs[i].name.split('_')[1] || db_configs[i].name || 'localhost', folder_name, query_number: j + 1 });
                     } else {
                         console.log('Query results:', data);
                     }
@@ -66,7 +66,7 @@ async function runAllQueries(queries = [], params = {}) {
                 }
 
             }
-            if(queries?.length == 0) console.log("The are no Queries to Run");
+            if (queries?.length == 0) console.log("The are no Queries to Run");
             console.log("Done Ran Queries on ALL DBs");
         } else {
             console.log("No DB Configs Found");
