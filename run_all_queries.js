@@ -66,8 +66,7 @@ async function runAllQueries(queries = [], params = {}) {
                 }
 
             }
-            if (queries?.length == 0) console.log("The are no Queries to Run");
-            console.log("Done Ran Queries on ALL DBs");
+            console.log(queries?.length === 0 ? "The are no Queries to Run" : "Done, Ran Queries on ALL DBs");
         } else {
             console.log("No DB Configs Found");
         }
