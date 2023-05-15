@@ -11,7 +11,7 @@ async function main() {
     ];
 
 
-    await runAllQueries(queries, { folder_name, should_export: true });
+    await runAllQueries(queries, { folder_name, should_export: false });
 }
 
 main();

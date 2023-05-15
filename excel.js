@@ -31,6 +31,8 @@ function convertJsonToExcel(data = [], params = {}) {
             bookType: "xlsx",
             compression: true
         });
+
+        console.log("Exports generated Successfully\n");
         return path;
     } else {
         console.log("No Data found");
