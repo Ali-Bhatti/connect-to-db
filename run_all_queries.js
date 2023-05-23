@@ -44,18 +44,21 @@ async function executeQuery(db_config, query) {
 }
 
 function writeCountOfDataInFile(data, folder_name) {
+    let fileName = './count.txt';
 
     if (typeof data !== 'string') data = JSON.stringify(data, null, 4);
 
-    const folderName = `INC-${folder_name}`;
-    if (!fs.existsSync(folderName)) {
-        fs.mkdirSync(folderName);
+    if (folder_name) {
+        const folderName = `INC-${folder_name}`;
+        if (!fs.existsSync(folderName)) {
+            fs.mkdirSync(folderName);
+        }
+        fileName = `./${folderName}/count.txt`;
     }
-    const fileName = `./${folderName}/count.txt`;
 
     fs.writeFile(fileName, data, (err) => {
         if (err) {
-            console.error('Error appending to file:', err);
+            console.error('Error writing to file:', err);
         } else {
             console.log(`Data Written to file ${fileName}`);
         }
@@ -65,10 +68,14 @@ function writeCountOfDataInFile(data, folder_name) {
 
 
 async function runAllQueries(queries = [], params = {}) {
-    let { folder_name, should_export = true } = params;
+    let { should_export = true } = params;
     let data = [], data_count_for_each_query = {};
 
     try {
+        if (queries?.length === 0) {
+            console.log("The are no Queries to Run");
+            return;
+        }
 
         if (db_configs?.length > 0) {
             for (let i = 0; i < db_configs.length; i++) {
@@ -81,8 +88,8 @@ async function runAllQueries(queries = [], params = {}) {
                     data = await executeQuery(db_config, queries[j]);
 
                     // if query is "SELECT" then export that data, otherwise just print the data
-                    if (should_export && !MYSQL_DDL_KEYWORDS.some((element) => query.split(' ').map((element) => element.toLowerCase()).includes(element.toLowerCase()))) {
-                        convertJsonToExcel(data, { rds_instance: db_config.name.split('_')[1] || db_config.name || 'localhost', folder_name, query_number: j + 1 });
+                    if (should_export) { //} && !MYSQL_DDL_KEYWORDS.some((element) => query.split(' ').map((element) => element.toLowerCase()).includes(element.toLowerCase()))) {
+                        convertJsonToExcel(data, { rds_instance: db_config.name.split('_')[1] || db_config.name || 'localhost', folder_name: `query-${j + 1}`, query_number: j + 1 });
 
                         // preparing data of count to write in the file.
                         let quey_num = `query_${j + 1}`;
@@ -99,13 +106,10 @@ async function runAllQueries(queries = [], params = {}) {
 
                 //console.log(data_count_for_each_query);
             }
-            if (queries?.length === 0) {
-                console.log("The are no Queries to Run");
-            } else {
-                console.log("\nDone, Ran Queries on ALL DBs");
-                if (data?.length > 0)
-                    writeCountOfDataInFile(data_count_for_each_query, folder_name);
-            }
+
+            console.log("\nDone, Ran Queries on ALL DBs");
+            if (data?.length > 0)
+                writeCountOfDataInFile(data_count_for_each_query);
 
         } else {
             console.log("No DB Configs Found");

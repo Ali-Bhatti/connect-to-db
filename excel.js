@@ -16,13 +16,13 @@ function convertJsonToExcel(data = [], params = {}) {
 
         if (folder_name) {
             // Create a new folder
-            const folderName = `INC-${folder_name}`;
+            const folderName = `${folder_name}`;
             if (!fs.existsSync(folderName)) {
                 fs.mkdirSync(folderName);
             }
 
             // Save the XLSX file
-            path = `${folderName}/Query#${query_number} INC-${folder_name} - ${rds_instance} (${date}).xlsx`;
+            path = `${folderName}/Query#${query_number} - ${rds_instance} (${date}).xlsx`;
         } else {
             path = `Query#${query_number} - ${rds_instance} (${date}).xlsx`;
         }
