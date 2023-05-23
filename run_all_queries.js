@@ -108,7 +108,7 @@ async function runAllQueries(queries = [], params = {}) {
             }
 
             console.log("\nDone, Ran Queries on ALL DBs");
-            if (data?.length > 0)
+            if (Object.keys(data_count_for_each_query)?.length > 0)
                 writeCountOfDataInFile(data_count_for_each_query);
 
         } else {
