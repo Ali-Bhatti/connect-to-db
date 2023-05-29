@@ -5,7 +5,7 @@ const fs = require('fs');
 const MYSQL_DDL_KEYWORDS = ['RENAME', 'TRUNCATE', 'DROP', 'ALTER', 'CREATE', 'DELETE', 'UPDATE', 'INSERT'];
 
 
-async function connectToDatabase(db_config) {
+async function getConnection(db_config) {
     try {
         const connection = await mysql.createConnection({
             host: db_config.host,
@@ -14,37 +14,26 @@ async function connectToDatabase(db_config) {
             database: db_config.database,
         });
 
-        console.log(`--------------------------------------------------`)
-        console.log(`Connected to ${db_config.name} database!`);
         return connection;
     } catch (error) {
         console.log('Err to connect with MySQL database!', error);
     }
 }
 
-async function executeQuery(db_config, query) {
-    let connection;
-    try {
-        connection = await connectToDatabase(db_config);
+async function executeQuery(connection, query) {
 
+    try {
         const [rows, fields] = await connection.execute(query);
         // console.log('Query results:', rows);
 
-        connection.end();
         return rows;
     } catch (error) {
         console.error('Error:', error);
-    } finally {
-        if (connection) {
-            connection.end();
-            console.log(`Database ${db_config.name} connection closed.`);
-            console.log(`--------------------------------------------------`)
-        }
     }
 }
 
 function writeCountOfDataInFile(data, folder_name) {
-    let fileName = './count.txt';
+    let fileName = './COUNT.txt';
 
     if (typeof data !== 'string') data = JSON.stringify(data, null, 4);
 
@@ -72,48 +61,58 @@ async function runAllQueries(queries = [], params = {}) {
     let data = [], data_count_for_each_query = {};
 
     try {
+        if (db_configs?.length === 0) {
+            console.log("No DB Configs Found");
+            return;
+        }
         if (queries?.length === 0) {
-            console.log("The are no Queries to Run");
+            console.log("There are no Queries to Run");
             return;
         }
 
-        if (db_configs?.length > 0) {
-            for (let i = 0; i < db_configs.length; i++) {
-                const db_config = db_configs[i];
+        for (let i = 0; i < db_configs.length; i++) {
+            const db_config = db_configs[i];
+            let connection = await getConnection(db_config);
 
-                for (let j = 0; j < queries.length; j++) {
-                    const query = queries[j];
+            console.log(`--------------------------------------------------`)
+            console.log(`Connected to ${db_config.name} database!\n`);
 
-                    console.log(`DB # ${i + 1} ( ${db_config.name} ) => Query # ${j + 1}`);
-                    data = await executeQuery(db_config, queries[j]);
 
-                    // if query is "SELECT" then export that data, otherwise just print the data
-                    if (should_export) { //} && !MYSQL_DDL_KEYWORDS.some((element) => query.split(' ').map((element) => element.toLowerCase()).includes(element.toLowerCase()))) {
-                        convertJsonToExcel(data, { rds_instance: db_config.name.split('_')[1] || db_config.name || 'localhost', folder_name: `query-${j + 1}`, query_number: j + 1 });
+            for (let j = 0; j < queries.length; j++) {
+                const query = queries[j];
 
-                        // preparing data of count to write in the file.
-                        let quey_num = `query_${j + 1}`;
-                        if (!data_count_for_each_query.hasOwnProperty(quey_num)) {
-                            data_count_for_each_query[quey_num] = {};
-                        }
-                        data_count_for_each_query[quey_num][db_config.name] = data?.length || 0;
+                console.log(`DB # ${i + 1} ( ${db_config.name} ) => Query # ${j + 1}`);
+                data = await executeQuery(connection, queries[j]);
 
-                    } else {
-                        console.log('Query results:', data);
+                // if query is "SELECT" then export that data, otherwise just print the data
+                if (should_export && !MYSQL_DDL_KEYWORDS.some(keyword => query.toUpperCase().includes(keyword))) {
+                    convertJsonToExcel(data, { rds_instance: db_config.name.split('_')[1] || db_config.name || 'localhost', folder_name: `query-${j + 1}`, query_number: j + 1 });
+
+                    // preparing data of count to write in the file.
+                    let quey_num = `query_${j + 1}`;
+                    if (!data_count_for_each_query.hasOwnProperty(quey_num)) {
+                        data_count_for_each_query[quey_num] = {};
                     }
+                    data_count_for_each_query[quey_num][db_config.name] = data?.length || 0;
 
+                } else {
+                    console.log('Query results:', data);
                 }
 
-                //console.log(data_count_for_each_query);
             }
 
-            console.log("\nDone, Ran Queries on ALL DBs");
-            if (Object.keys(data_count_for_each_query)?.length > 0)
-                writeCountOfDataInFile(data_count_for_each_query);
+            if (connection) {
+                connection.end();
+                console.log(`Database ${db_config.name} connection closed.`);
+                console.log(`--------------------------------------------------\n`)
+            }
 
-        } else {
-            console.log("No DB Configs Found");
         }
+
+        console.log("\nDone, Ran Queries on ALL DBs");
+        if (Object.keys(data_count_for_each_query)?.length > 0)
+            writeCountOfDataInFile(data_count_for_each_query);
+
 
     } catch (error) {
         console.log("error occurred while execution", error);
