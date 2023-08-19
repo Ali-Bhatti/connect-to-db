@@ -9,7 +9,7 @@
 - Clone or download the repo
 - open terminal and run `npm install`
 - Set the DB configurations in **db_configs.js** file. A sample is given in **db_config.js** file
-- Past your **Queries** in `queries.sql` (*each query must end with semicolon*).
+- Paste your **Queries** in `queries.sql` (*each query must end with semicolon*).
 - run `node app.js`
 
 ## NOTE:
