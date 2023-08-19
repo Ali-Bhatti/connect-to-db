@@ -29,30 +29,44 @@ async function readDataFormSqlFile(file_path) {
 
 }
 
-function writeCountOfDataInFile(data, folder_name) {
+async function writeCountOfDataInFile(data, folder_name) {
     let fileName = './COUNT.txt';
 
     if (typeof data !== 'string') data = JSON.stringify(data, null, 4);
 
-    if (folder_name) {
-        const folderName = `INC-${folder_name}`;
-        if (!fs.existsSync(folderName)) {
-            fs.mkdirSync(folderName);
+    try {
+        if (folder_name) {
+            await fs.mkdir(folder_name, { recursive: true });
+            fileName = `${folder_name}/COUNT.txt`;
         }
-        fileName = `./${folderName}/count.txt`;
-    }
 
-    fs.writeFile(fileName, data, (err) => {
-        if (err) {
-            console.error('Error writing to file:', err);
-        } else {
-            console.log(`Data Written to file ${fileName}`);
-        }
-    });
+        await fs.writeFile(fileName, data);
+        console.log(`Data Written to file '${fileName}'`);
+
+    } catch (error) {
+        console.error('Error while writing to file or making a folder:', error);
+    }
 
 }
 
-module.exports = { 
-    readDataFormSqlFile, 
-    writeCountOfDataInFile 
+async function copySqlQueriesFile(source_folder_name, destination_folder_name){
+    // read sql data from "queries_file_path" and write it at "write_folder_name"
+    destination_folder_name = `${destination_folder_name}/queries.sql`;
+
+    try {
+        let file_data = await fs.readFile(source_folder_name, 'utf8');
+
+        await fs.writeFile(destination_folder_name, file_data, 'utf8');
+
+        console.log("\'Queries\' file copied successfully")
+
+    } catch (error) {
+        console.error('Error occurred while copying file:', error);
+    }
+}
+
+module.exports = {
+    readDataFormSqlFile,
+    writeCountOfDataInFile,
+    copySqlQueriesFile
 };

@@ -18,7 +18,7 @@ function convertJsonToExcel(data = [], params = {}) {
             // Create a new folder
             const folderName = `${folder_name}`;
             if (!fs.existsSync(folderName)) {
-                fs.mkdirSync(folderName);
+                fs.mkdirSync(folderName, { recursive: true });
             }
 
             // Save the XLSX file
