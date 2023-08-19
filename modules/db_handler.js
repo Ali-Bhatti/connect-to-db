@@ -24,7 +24,9 @@ async function executeQuery(connection, query) {
 
         return rows;
     } catch (error) {
-        console.error('Error:', error);
+        console.log('Error Stack:', error.stack);
+        delete error.stack;
+        console.log('Error:', error);
     }
 }
 

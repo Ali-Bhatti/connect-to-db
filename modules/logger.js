@@ -12,7 +12,8 @@ function getLogStream(log_file_path) {
   // Redirect console.log output to the log stream
   console.oldLog = console.log;
   console.log = function (...args) {
-    let log_msg = `[${new Date().toISOString()}] ${args.map(arg => (typeof arg !== 'string') ? JSON.stringify(arg, null, 4) : arg)}\n`;
+    //let log_msg = `[${new Date().toISOString()}] ${args.map(arg => (typeof arg !== 'string') ? JSON.stringify(arg, null, 4) : arg)}\n`;
+    let log_msg = `${args.map(arg => (typeof arg !== 'string') ? JSON.stringify(arg, null, 4) : arg)}\n`;
     log_stream.write(log_msg);
     console.oldLog.apply(console, arguments);
   };
