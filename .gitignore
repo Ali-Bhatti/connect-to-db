@@ -1,2 +1,5 @@
 node_modules/
 .vscode
+COUNT.txt
+queries.sql
+query-[0-9]/

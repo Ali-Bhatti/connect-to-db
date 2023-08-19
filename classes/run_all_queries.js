@@ -1,60 +1,6 @@
 const mysql = require('mysql2/promise');
-const db_configs = require('./db_configs');
-const convertJsonToExcel = require("./excel");
 const fs = require('fs');
 const MYSQL_DDL_KEYWORDS = ['RENAME', 'TRUNCATE', 'DROP', 'ALTER', 'CREATE', 'DELETE', 'UPDATE', 'INSERT'];
-
-
-async function getConnection(db_config) {
-    try {
-        const connection = await mysql.createConnection({
-            host: db_config.host,
-            user: db_config.user,
-            password: db_config.password,
-            database: db_config.database,
-        });
-
-        return connection;
-    } catch (error) {
-        console.log('Err to connect with MySQL database!', error);
-    }
-}
-
-async function executeQuery(connection, query) {
-
-    try {
-        const [rows, fields] = await connection.execute(query);
-        // console.log('Query results:', rows);
-
-        return rows;
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
-function writeCountOfDataInFile(data, folder_name) {
-    let fileName = './COUNT.txt';
-
-    if (typeof data !== 'string') data = JSON.stringify(data, null, 4);
-
-    if (folder_name) {
-        const folderName = `INC-${folder_name}`;
-        if (!fs.existsSync(folderName)) {
-            fs.mkdirSync(folderName);
-        }
-        fileName = `./${folderName}/count.txt`;
-    }
-
-    fs.writeFile(fileName, data, (err) => {
-        if (err) {
-            console.error('Error writing to file:', err);
-        } else {
-            console.log(`Data Written to file ${fileName}`);
-        }
-    });
-
-}
-
 
 async function runAllQueries(queries = [], params = {}) {
     let { should_export = true } = params;
@@ -124,3 +70,7 @@ async function runAllQueries(queries = [], params = {}) {
 
 module.exports = runAllQueries;
 
+const db_configs = require('../config/db_configs');
+const convertJsonToExcel = require("./excel");
+const { getConnection, executeQuery } = require('./db_handle');
+const { writeCountOfDataInFile } = require('./file_handler');
