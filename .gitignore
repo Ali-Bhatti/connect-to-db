@@ -4,3 +4,4 @@ COUNT.txt
 queries.sql
 query-[0-9]/
 queries-executions/
+config/db_configs.js
