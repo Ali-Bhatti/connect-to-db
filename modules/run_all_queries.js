@@ -5,8 +5,8 @@ const MYSQL_DDL_KEYWORDS = ['RENAME', 'TRUNCATE', 'DROP', 'ALTER', 'CREATE', 'DE
 async function runAllQueries(queries = [], params = {}) {
     let { should_export = true } = params;
     let data = [], data_count_for_each_query = {},
-        queries_file_path = `./queries.sql`;
-        execution_folder = `queries-executions/execution @ ${moment().format('YYYY-MM-DD (hh_mm_ss a)')}`;
+        execution_folder = `queries-executions/execution on ${moment().format('YYYY-MM-DD (hh_mm_ss a)')}`;
+    var logger = getLogStream(execution_folder);
 
     try {
         if (db_configs?.length === 0) {
@@ -62,11 +62,13 @@ async function runAllQueries(queries = [], params = {}) {
             await fh.writeCountOfDataInFile(data_count_for_each_query, execution_folder);
 
         // saving "queries" file to "execution_folder"
-        await fh.copySqlQueriesFile(queries_file_path, execution_folder);
+        await fh.copyAndPasteFile('./queries.sql', execution_folder, 'queries.sql');
 
 
     } catch (error) {
         console.log("error occurred while execution", error);
+    } finally{
+        logger.end();
     }
 
 }
@@ -79,3 +81,4 @@ const db_configs = require('../config/db_configs');
 const convertJsonToExcel = require("./excel");
 const dbh = require('./db_handler');
 const fh = require('./file_handler');
+const getLogStream = require('./logger');

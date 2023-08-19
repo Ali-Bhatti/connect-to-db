@@ -44,14 +44,15 @@ async function writeCountOfDataInFile(data, folder_name) {
         console.log(`Data Written to file '${fileName}'`);
 
     } catch (error) {
-        console.error('Error while writing to file or making a folder:', error);
+        console.log('Error while writing to file or making a folder:', error);
     }
 
 }
 
-async function copySqlQueriesFile(source_folder_name, destination_folder_name){
+async function copyAndPasteFile(source_folder_name, destination_folder_name, file_name){
     // read sql data from "queries_file_path" and write it at "write_folder_name"
-    destination_folder_name = `${destination_folder_name}/queries.sql`;
+    if(file_name)
+        destination_folder_name = `${destination_folder_name}/${file_name}`;
 
     try {
         let file_data = await fs.readFile(source_folder_name, 'utf8');
@@ -68,5 +69,5 @@ async function copySqlQueriesFile(source_folder_name, destination_folder_name){
 module.exports = {
     readDataFormSqlFile,
     writeCountOfDataInFile,
-    copySqlQueriesFile
+    copyAndPasteFile
 };

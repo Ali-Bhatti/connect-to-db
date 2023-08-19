@@ -1,5 +1,5 @@
-const runAllQueries = require('./classes/run_all_queries');
-const { readDataFormSqlFile } = require('./classes/file_handler');
+const runAllQueries = require('./modules/run_all_queries');
+const { readDataFormSqlFile } = require('./modules/file_handler');
 
 async function main() {
 
@@ -9,7 +9,7 @@ async function main() {
         let queries = await readDataFormSqlFile(queries_file_path);
 
         console.log("\nDone reading all queries from file\n");
-        await runAllQueries(queries, { should_export: true });
+        await runAllQueries(queries, { should_export: false });
 
     } catch (error) {
         console.log(error);
