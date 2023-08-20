@@ -43,8 +43,8 @@ Connect-to-db is a pure backend utility that enables a user to connect to DB (*r
 
 ## Features
 
-1. Add multiple querie(s) in `queries.js` file and run it on all the DBs, whose configiration has been added in **`db_configs.js`** file, in one go.
-2. Get the complete queries execution history in **queries-execution** folder, whenever user will run the querie(s). This folder will contain many **sub-folders** (named as the *execution date and time* of queries)**,** where each folder will conatin all the data related to a single execution of all the queries (like COUNT, exports of each `SELECT` query, logs and queries ran) added in `queries.js` file.
+1. Add multiple queries in `queries.js` file and run it on all the DBs, whose configuration has been added in **`db_configs.js`** file, in one go.
+2. Get the complete queries execution history in **queries-execution** folder, whenever user will run the querie(s). This folder will contain many **sub-folders** (named as the *execution date and time* of queries)**,** where each folder will contain all the data related to a single execution of all the queries (like COUNT, exports of each `SELECT` query, logs and queries ran) added in `queries.js` file.
    ![1692542899360](image/README/1692542899360.png)
 3. Get the **export** of each `SELECT` query, by setting the **`should_export:true`** in `app.js` file, like this![1692542184880](image/README/1692542184880.png)
 4. Get the **COUNT** of results of each `SELECT` query on each DB config in `COUNT.txt` file in the sub-folder of **queries-execution** folder, in the following format
@@ -52,10 +52,12 @@ Connect-to-db is a pure backend utility that enables a user to connect to DB (*r
    ```javascript
    {
        "query_1": {
-           "Prod_DB_1": 9
+          "Prod_DB_1": 9,
+   	"Prod_DB_2": 11
        },
        "query_2": {
-           "Prod_DB_2": 5
+          "Prod_DB_1": 5,
+          "Prod_DB_2": 6
        }
    }
    ```
