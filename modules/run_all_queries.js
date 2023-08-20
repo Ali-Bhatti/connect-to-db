@@ -1,4 +1,3 @@
-const mysql = require('mysql2/promise');
 const moment = require('moment');
 const MYSQL_DDL_KEYWORDS = ['RENAME', 'TRUNCATE', 'DROP', 'ALTER', 'CREATE', 'DELETE', 'UPDATE', 'INSERT'];
 

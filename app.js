@@ -9,7 +9,7 @@ async function main() {
         let queries = await readDataFormSqlFile(queries_file_path);
 
         console.log("\nDone reading all queries from file\n");
-        await runAllQueries(queries, { should_export: false });
+        await runAllQueries(queries, { should_export: true });
 
     } catch (error) {
         console.log(error);
