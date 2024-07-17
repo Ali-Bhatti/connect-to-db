@@ -4,7 +4,8 @@ let db_configs = [
     //     host: "localhost",
     //     user: "root",
     //     password: "*****",
-    //     database: "my-db"
+    //     database: "my-db",
+    //     port: 3306 // [optional parameter]
     // },
 ];
 

@@ -2,31 +2,61 @@ const fs = require('fs/promises');
 
 
 async function readDataFormSqlFile(file_path) {
-    let sql_file_data;
     try {
         // Read the SQL file
-        sql_file_data = await fs.readFile(file_path, 'utf8');
+        let sql_file_data = await fs.readFile(file_path, 'utf8');
 
+        // Remove comments, normalize whitespace, and handle delimiters
+        sql_file_data = sql_file_data
+            .split('\n')
+            .filter(line => !line.trim().startsWith('--') && !line.trim().startsWith('/*'))
+            .join(' ')
+            .replace(/\t/g, ' ')
+            .replace(/\s+/g, ' ')
+            .replace(/^\s+|\s+$/g, '')
+            .replace(/DELIMITER \$\$/g, '')
+            .replace(/DELIMITER /g, '')
+            .replace(/\/\//g, '');
+
+        if (!sql_file_data) return [];
+
+        // Split the file content into separate queries
+        const queries = sql_file_data.split(';').map(q => q.trim()).filter(query => query);
+
+        let result_queries = [];
+        let complex_statements = [];
+        let in_complex_statement = false;
+
+        for (let query of queries) {
+            if (/CREATE TRIGGER|CREATE PROCEDURE/i.test(query)) {
+                in_complex_statement = true;
+            }
+
+            if (in_complex_statement) {
+                complex_statements.push(query);
+                if (/END\s*\$\$/i.test(query)) {
+                    complex_statements.pop();
+                    complex_statements.push('END');
+                    result_queries.push(`${complex_statements.join('; ')};`);
+                    complex_statements = [];
+                    in_complex_statement = false;
+                } else if (/END/i.test(query)) {
+                    result_queries.push(`${complex_statements.join('; ')};`);
+                    complex_statements = [];
+                    in_complex_statement = false;
+                }
+            } else {
+                if (query) {
+                    result_queries.push(query + ';');
+                }
+            }
+        }
+
+        return result_queries;
     } catch (error) {
-        console.log("Reading file error", error);
-        throw ("Error occurred while reading the file");
+        console.error("Reading file error", error);
+        throw new Error("Error occurred while reading the file");
     }
-    // Remove commented lines from the SQL content
-    sql_file_data = sql_file_data
-        .split('\n')
-        .filter((line) => !line.trim().startsWith('--') && !line.trim().startsWith('/*'))
-        .join(' ');
-
-    if (sql_file_data?.length === 0) return [];
-
-    // Split the file content into separate queries
-    const queries = sql_file_data.split(';');
-
-    // Remove empty queries
-    const filtered_queries = queries.filter((query) => query.trim() !== '');
-
-    return filtered_queries;
-
 }
 
 async function writeCountOfDataInFile(data, folder_name) {
@@ -49,9 +79,9 @@ async function writeCountOfDataInFile(data, folder_name) {
 
 }
 
-async function copyAndPasteFile(source_folder_name, destination_folder_name, file_name){
+async function copyAndPasteFile(source_folder_name, destination_folder_name, file_name) {
     // read sql data from "queries_file_path" and write it at "write_folder_name"
-    if(file_name)
+    if (file_name)
         destination_folder_name = `${destination_folder_name}/${file_name}`;
 
     try {
