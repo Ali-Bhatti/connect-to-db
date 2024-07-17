@@ -8,6 +8,7 @@ async function getConnection(db_config) {
             user: db_config.user,
             password: db_config.password,
             database: db_config.database,
+            port: db_config?.port || 3306
         });
 
         return connection;
@@ -19,7 +20,7 @@ async function getConnection(db_config) {
 async function executeQuery(connection, query) {
 
     try {
-        const [rows, fields] = await connection.execute(query);
+        const [rows, fields] = await connection.query(query);
         // console.log('Query results:', rows);
 
         return rows;

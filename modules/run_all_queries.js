@@ -1,5 +1,4 @@
 const moment = require('moment');
-const MYSQL_DDL_KEYWORDS = ['RENAME', 'TRUNCATE', 'DROP', 'ALTER', 'CREATE', 'DELETE', 'UPDATE', 'INSERT'];
 
 async function runAllQueries(queries = [], params = {}) {
     let { should_export = true } = params;
@@ -28,11 +27,12 @@ async function runAllQueries(queries = [], params = {}) {
             for (let j = 0; j < queries.length; j++) {
                 const query = queries[j];
 
-                console.log(`DB # ${i + 1} ( ${db_config.name} ) => Query # ${j + 1}`);
+                console.log(`\x1b[1mDB # ${i + 1} ( ${db_config.name} ) => Query # ${j + 1}\x1b[0m `);
+                console.log(`\x1b[1mExecuting Query:\x1b[0m ${query.replace(/\n/g, '').split(' ').slice(0, 10).join(' ')}${query.split(' ').length > 10 ? `...` : ``}`);
                 data = await dbh.executeQuery(connection, queries[j]);
 
                 // if query is "SELECT" then export that data, otherwise just print the data
-                if (should_export && !MYSQL_DDL_KEYWORDS.some(keyword => query.toUpperCase().includes(keyword))) {
+                if (should_export && !utils.isDDLorDMLQuery(query)) {
                     convertJsonToExcel(data, { rds_instance: db_config.name.split('_')[1] || db_config.name || 'localhost', folder_name: `${execution_folder}/query-${j + 1}`, query_number: j + 1 });
 
                     // preparing data of count to write in the file.
@@ -43,7 +43,7 @@ async function runAllQueries(queries = [], params = {}) {
                     data_count_for_each_query[quey_num][db_config.name] = data?.length || 0;
 
                 } else {
-                    console.log('Query results:', data);
+                    console.log('\x1b[1mQuery results: \x1b[0m', data, '\n');
                 }
 
             }
@@ -72,7 +72,6 @@ async function runAllQueries(queries = [], params = {}) {
 
 }
 
-//runAllQueries(queries);
 
 module.exports = runAllQueries;
 
@@ -81,3 +80,4 @@ const convertJsonToExcel = require("./excel");
 const dbh = require('./db_handler');
 const fh = require('./file_handler');
 const getLogStream = require('./logger');
+const utils = require('../utils/index')
