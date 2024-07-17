@@ -16,7 +16,8 @@ async function readDataFormSqlFile(file_path) {
             .replace(/^\s+|\s+$/g, '')
             .replace(/DELIMITER \$\$/g, '')
             .replace(/DELIMITER /g, '')
-            .replace(/\/\//g, '');
+            .replace(/\/\//g, '')
+            .replace(/\&\&/g, '');
 
         if (!sql_file_data) return [];
 
@@ -28,7 +29,7 @@ async function readDataFormSqlFile(file_path) {
         let in_complex_statement = false;
 
         for (let query of queries) {
-            if (/CREATE TRIGGER|CREATE PROCEDURE/i.test(query)) {
+            if (/CREATE\s+(DEFINER\s*=\s*`[^`]+`\s*@\s*`[^`]+`\s*)?\s*(TRIGGER|PROCEDURE)/i.test(query)) {
                 in_complex_statement = true;
             }
 
@@ -40,7 +41,7 @@ async function readDataFormSqlFile(file_path) {
                     result_queries.push(`${complex_statements.join('; ')};`);
                     complex_statements = [];
                     in_complex_statement = false;
-                } else if (/END/i.test(query)) {
+                } else if (/END\b/i.test(query) && query.trim() === "END") {
                     result_queries.push(`${complex_statements.join('; ')};`);
                     complex_statements = [];
                     in_complex_statement = false;
