@@ -32,7 +32,8 @@ Connect-to-db is a pure backend utility that enables a user to connect to DB (*r
       host: "localhost",
       user: "root",
       password: "*****",
-      database: "my-db"
+      database: "my-db",
+      port: "3306" // [Optional Parameter]
    },
   ```
 - Paste your **Queries** in `queries.sql` file (*each query must end with semicolon*).
