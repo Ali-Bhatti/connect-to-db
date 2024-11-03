@@ -9,7 +9,8 @@ async function readDataFormSqlFile(file_path) {
         // Remove comments, normalize whitespace, and handle delimiters
         sql_file_data = sql_file_data
             .split('\n')
-            .filter(line => !line.trim().startsWith('--') && !line.trim().startsWith('/*'))
+            .map(line => line.replace(/--.*$/, ''))
+            .filter(line => line.trim() !== '')
             .join(' ')
             .replace(/\t/g, ' ')
             .replace(/\s+/g, ' ')
